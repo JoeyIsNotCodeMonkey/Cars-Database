@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+</head>
+<body>
+   
+    <script>
+       $(document).ready(function(){
+                   
+           setInterval(function(){
+               updateCars();
+           }, 1000);
+           
+           function updateCars() {
+               $.ajax({
+                   url: "display_cars.php",
+                   type: "POST",
+                   success: function(show_cars) {
+                       if(!show_cars.error) {
+                           $("#show-cars").html(show_cars);
+                       }
+                   }
+               });
+           }
+               
+           
+           $('#search').keyup(function(){
+               var search = $('#search').val();
+               
+               $.ajax({
+                   url: 'search.php', 
+                   data: {search:search},
+                   type: 'POST',
+                   success: function(data){
+                       if(!data.error) {
+                           $('#result').html(data)
+                       }
+                   }
+               });
+           });
+           
+           //add cars to database
+           $("#add-car-form").submit(function(evt){
+               evt.preventDefault();
+               
+               var postData = $(this).serialize(); //get the serial of string on the url
+               var url = $(this).attr('action');
+               
+               $.post(url, postData, function(php_table_data) {
+                   $("#car-result").html(php_table_data);
+                   $("#add-car-form")[0].reset();
+               });
+           }); //add cars ends
+           
+           
+           
+       });
+    </script>
+    
+    <div id="container" class="col-xs-6 col-xs-offset-3 text-center">
+        <h2>Search Our Database</h2>
+        <input class="form-control" type="text" name="search" id="search" placeholder="Search our inventory">
+        <br/>
+        <br/>
+        <h2 class="bg-success" id="result">
+            
+        </h2>
+    </div>
+    
+    <div class="row col-xs-6 col-xs-offset-3">
+        <form method="post" class="col-sx-6" id="add-car-form" action="add_cars.php">
+           <label for="car-name">Add a Car</label>
+           <div class="form-group">
+               <input class="form-control" type="text" name="car_name" required>
+           </div>
+           <div class="form-group">
+               <input type="submit" class="btn btn-primary" value="add car">
+           </div>
+            
+            
+        </form>
+        
+        <div class="col-xs-6">
+            <div id="car-result">
+                
+            </div>
+        </div>
+               
+    </div>
+    
+    <div class="row">
+            <div class="col-xs-3 col-xs-offset-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="show-cars">
+                        
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="col-xs-3">
+                
+                <div id="action-container">
+                    
+                </div>
+            </div>
+    </div>
+    
+</body>
+</html>
